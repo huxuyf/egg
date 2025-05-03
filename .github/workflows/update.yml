@@ -24,9 +24,8 @@ jobs:
         with:
           node-version: "latest"
 
-      - name: 安装javascript-obfuscator和unzip
+      - name: 安装unzip
         run: |
-          npm install -g javascript-obfuscator
           sudo apt-get install -y unzip
 
       - name: 下载最新的BPB worker
