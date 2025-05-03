@@ -1,4 +1,4 @@
-name: Build Obfuscate BPB Panel
+name: Auto Update Worker
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - main
   schedule:
     - cron: "0 1 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,42 +16,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out the code
+      - name: 初始化仓库
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: 创建Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "latest"
 
-      - name: Install dependencies
+      - name: 安装javascript-obfuscator和unzip
         run: |
           npm install -g javascript-obfuscator
           sudo apt-get install -y unzip
 
-      - name: Download and extract latest BPB worker
+      - name: 下载最新的BPB worker
         run: |
           wget https://github.com/bia-pain-bache/BPB-Worker-Panel/releases/latest/download/worker.zip
           unzip -o worker.zip
-          mv _worker.js origin.js
-
-      - name: Obfuscate BPB worker js
-        run: |
-          javascript-obfuscator origin.js --output _worker.js \
-          --compact true \
-          --identifier-names-generator hexadecimal \
-          --rename-globals true \
-          --string-array true \
-          --string-array-encoding 'base64' \
-          --string-array-threshold 0.75 \
-          --transform-object-keys true \
-          --self-defending false \
-          --simplify true
+          rm worker.zip
 
       - name: 提交更改
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: main
-          commit_message: ':arrow_up: update latest bpb panel'
+          commit_message: '自动同步最新 Worker 版本'
           commit_author: 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
           push_options: '--set-upstream'
